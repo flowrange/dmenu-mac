@@ -31,5 +31,16 @@ swiftlint --strict   # CI fails on warnings
 ```
 
 `-skipPackagePluginValidation` is required because SwiftLint runs as an Xcode build plugin.
+If `swiftlint` is not on your PATH, use the plugin's bundled macOS executable at
+`<project DerivedData>/SourcePackages/artifacts/swiftlintplugins/SwiftLintBinary/SwiftLintBinary.artifactbundle/macos/swiftlint`
+with `--strict` after Xcode has resolved the packages.
+
+For window layout changes, run the geometry, appearance and screen-selection
+tests along with the full suite. Manually check **Settings → Appearance**:
+Top/Center/Bottom, Full width and a custom width, smaller and offset displays,
+and a side Dock. Check that relaunch preserves the settings and Reset to
+Defaults restores Top, Full width and the 900-point custom width. The command
+line `--bottom` and `--monitor` overrides, horizontal navigation and stdin mode
+should continue to work.
 
 Releases are cut with `scripts/release.sh`, see [RELEASING.md](../RELEASING.md).

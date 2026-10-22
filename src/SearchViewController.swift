@@ -112,7 +112,10 @@ class SearchViewController: NSViewController, NSTextFieldDelegate, NSWindowDeleg
     }
 
     func updatePosition() {
-        (view.window as? SearchWindow)?.updatePosition(windowPosition, monitor: monitorOverride)
+        guard let window = view.window as? SearchWindow else { return }
+        window.updatePosition(windowPosition, monitor: monitorOverride)
+        view.layoutSubtreeIfNeeded()
+        resultsText.scrollToVisible(resultsText.selectedRect)
     }
 
     func updateColors() {

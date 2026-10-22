@@ -44,32 +44,42 @@ class SearchWindow: NSPanel {
         guard let screen = ScreenPicker.pick(from: NSScreen.screens, selection: selection, monitor: monitor,
                                              context: .current(), fallback: NSScreen.main) else { return }
 
-        let frame = Self.frame(for: position, in: Self.barArea(of: screen), height: self.frame.height)
+        let appearance = AppearanceManager.shared
+        let area = Self.barArea(of: screen, fullWidth: appearance.usesFullWidth)
+        let width = appearance.usesFullWidth ? nil : appearance.windowWidth
+        let frame = Self.frame(for: position, in: area, width: width, height: self.frame.height)
         setFrame(frame, display: false)
     }
 
     /**
      * The screen's full width, between the menu bar and a bottom Dock. A Dock on the side
-     * doesn't narrow the bar, since the window level keeps the bar above it.
+     * doesn't narrow the full-width bar, since the window level keeps it above the Dock.
+     * A custom-width window stays within the visible frame, including beside a side Dock.
      */
-    static func barArea(of screen: ScreenDescribing) -> NSRect {
+    static func barArea(of screen: ScreenDescribing, fullWidth: Bool = true) -> NSRect {
         let visible = screen.visibleFrame
+        guard fullWidth else { return visible }
         return NSRect(x: screen.frame.minX, y: visible.minY, width: screen.frame.width, height: visible.height)
     }
 
     /**
-     * Full-width bar frame of the given height, pinned to `position` within `screenFrame`.
+     * Horizontally centered frame, limited to the available area. A nil width fills it.
      */
-    static func frame(for position: WindowPosition, in screenFrame: NSRect, height: CGFloat) -> NSRect {
+    static func frame(for position: WindowPosition, in screenFrame: NSRect,
+                      width: CGFloat? = nil, height: CGFloat) -> NSRect {
+        let width = min(width ?? screenFrame.width, screenFrame.width)
+        let height = min(height, screenFrame.height)
         let originY: CGFloat
         switch position {
         case .top:
             originY = screenFrame.maxY - height
+        case .center:
+            originY = screenFrame.midY - height / 2
         case .bottom:
             originY = screenFrame.minY
         }
 
-        return NSRect(x: screenFrame.minX, y: originY, width: screenFrame.width, height: height)
+        return NSRect(x: screenFrame.midX - width / 2, y: originY, width: width, height: height)
     }
 
     // The app has no main menu (LSUIElement), so handle Cmd-, here to open Settings.

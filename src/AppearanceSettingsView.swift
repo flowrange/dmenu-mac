@@ -36,6 +36,20 @@ struct AppearanceSettingsView: View {
                     }
                 }
 
+                Toggle("Full width", isOn: $model.usesFullWidth)
+
+                LabeledContent("Width") {
+                    HStack {
+                        Slider(value: $model.windowWidth, in: AppearanceSettingsModel.windowWidthRange, step: 10)
+                        Text(model.windowWidthText)
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+                            .frame(minWidth: 65, alignment: .trailing)
+                    }
+                }
+                .disabled(model.usesFullWidth)
+                .help("Limited to the screen's usable width. Applies to every position.")
+
                 LabeledContent("Opacity") {
                     HStack {
                         Slider(value: $model.windowOpacity, in: AppearanceSettingsModel.opacityRange)

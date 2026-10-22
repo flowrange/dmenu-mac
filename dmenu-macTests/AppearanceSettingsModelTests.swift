@@ -24,6 +24,7 @@ final class AppearanceSettingsModelTests: XCTestCase {
     func testControlRangesMatchPreviousLimits() {
         XCTAssertEqual(AppearanceSettingsModel.opacityRange, 0.2...1.0)
         XCTAssertEqual(AppearanceSettingsModel.fontSizeRange, 8...72)
+        XCTAssertEqual(AppearanceSettingsModel.windowWidthRange, 300...3000)
     }
 
     // MARK: - Reflecting stored settings
@@ -33,12 +34,17 @@ final class AppearanceSettingsModelTests: XCTestCase {
         manager.windowOpacity = 0.75
         manager.fontSize = 18
         manager.windowPosition = .bottom
+        manager.usesFullWidth = false
+        manager.windowWidth = 1200
 
         XCTAssertEqual(model.windowOpacity, 0.75, accuracy: 0.0001)
         XCTAssertEqual(model.opacityText, "75%")
         XCTAssertEqual(model.fontSize, 18, accuracy: 0.0001)
         XCTAssertEqual(model.fontSizeText, "18 pt")
         XCTAssertEqual(model.windowPosition, .bottom)
+        XCTAssertFalse(model.usesFullWidth)
+        XCTAssertEqual(model.windowWidth, 1200)
+        XCTAssertEqual(model.windowWidthText, "1200 pt")
     }
 
     func testOpacityTextRoundsInsteadOfTruncating() {
@@ -54,10 +60,27 @@ final class AppearanceSettingsModelTests: XCTestCase {
 
     func testChangingPositionStoresItAndNotifies() {
         let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
-        model.windowPosition = .bottom
+        model.windowPosition = .center
         wait(for: [notified], timeout: 1.0)
 
-        XCTAssertEqual(AppearanceManager.shared.windowPosition, .bottom)
+        XCTAssertEqual(AppearanceManager.shared.windowPosition, .center)
+    }
+
+    func testChangingWidthStoresItAndNotifies() {
+        let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
+        model.windowWidth = 1100
+        wait(for: [notified], timeout: 1.0)
+
+        XCTAssertEqual(AppearanceManager().windowWidth, 1100)
+        XCTAssertEqual(model.windowWidthText, "1100 pt")
+    }
+
+    func testTogglingFullWidthStoresItAndNotifies() {
+        let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
+        model.usesFullWidth = false
+        wait(for: [notified], timeout: 1.0)
+
+        XCTAssertFalse(AppearanceManager().usesFullWidth)
     }
 
     func testChangingScreenStoresItAndNotifies() {
@@ -129,8 +152,10 @@ final class AppearanceSettingsModelTests: XCTestCase {
         model.windowOpacity = 0.5
         model.fontSize = 14
         model.windowPosition = .bottom
+        model.windowWidth = 1000
+        model.usesFullWidth = false
 
-        XCTAssertEqual(published, 3)
+        XCTAssertEqual(published, 5)
     }
 
     // MARK: - Reset
@@ -139,7 +164,9 @@ final class AppearanceSettingsModelTests: XCTestCase {
         let manager = AppearanceManager.shared
         manager.windowOpacity = 0.3
         manager.fontSize = 40
-        manager.windowPosition = .bottom
+        manager.windowPosition = .center
+        manager.usesFullWidth = false
+        manager.windowWidth = 1500
         manager.screenSelection = .mouse
         manager.showIcons = true
 
@@ -153,6 +180,8 @@ final class AppearanceSettingsModelTests: XCTestCase {
         XCTAssertEqual(model.opacityText, "60%")
         XCTAssertEqual(model.fontSizeText, "13 pt")
         XCTAssertEqual(model.windowPosition, .top)
+        XCTAssertTrue(model.usesFullWidth)
+        XCTAssertEqual(model.windowWidth, 900)
         XCTAssertEqual(model.screenSelection, .activeWindow)
     }
 

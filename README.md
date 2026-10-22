@@ -5,8 +5,14 @@ keyboard-driven macOS launcher by [oNaiPs](https://github.com/oNaiPs).
 
 ## What changed
 
-The application currently matches upstream **0.9.0**. This fork sets up local
-development workflows; launcher changes will be documented here as implemented.
+Based on upstream **0.9.0**, this fork adds a **Center** window position and a
+custom width in **Settings → Appearance**. Disable **Full width** to adjust the
+width from 300 to 3,000 points (initially 900). The window is centered horizontally
+within the selected screen's usable area, avoiding a side Dock and shrinking to
+fit smaller screens. Custom width works with Top, Center and Bottom positions.
+
+Top and Full width remain the defaults. Appearance settings persist and can be
+reset with **Reset to Defaults**.
 
 No fork binaries have been released. Homebrew and Nix install the upstream app.
 

@@ -21,6 +21,7 @@ import SwiftUI
 final class AppearanceSettingsModel: NSObject, ObservableObject {
     static let opacityRange: ClosedRange<Double> = 0.2...1.0
     static let fontSizeRange: ClosedRange<Double> = 8...72
+    static let windowWidthRange = AppearanceManager.windowWidthRange
 
     private let manager: AppearanceManager
 
@@ -41,6 +42,20 @@ final class AppearanceSettingsModel: NSObject, ObservableObject {
     var windowPosition: WindowPosition {
         get { manager.windowPosition }
         set { update { manager.windowPosition = newValue } }
+    }
+
+    var usesFullWidth: Bool {
+        get { manager.usesFullWidth }
+        set { update { manager.usesFullWidth = newValue } }
+    }
+
+    var windowWidth: Double {
+        get { Double(manager.windowWidth) }
+        set { update { manager.windowWidth = CGFloat(newValue) } }
+    }
+
+    var windowWidthText: String {
+        "\(Int(windowWidth.rounded())) pt"
     }
 
     var screenSelection: ScreenSelection {

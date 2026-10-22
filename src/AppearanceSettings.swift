@@ -27,6 +27,8 @@ extension UserDefaults {
         static let fontName = "appearance.fontName"
         static let fontSize = "appearance.fontSize"
         static let windowPosition = "appearance.windowPosition"
+        static let usesFullWidth = "appearance.usesFullWidth"
+        static let windowWidth = "appearance.windowWidth"
         static let screenSelection = "appearance.screenSelection"
         static let showIcons = "appearance.showIcons"
     }
@@ -35,11 +37,13 @@ extension UserDefaults {
 // MARK: - Window Position
 enum WindowPosition: String, CaseIterable {
     case top
+    case center
     case bottom
 
     var title: String {
         switch self {
         case .top: return "Top"
+        case .center: return "Center"
         case .bottom: return "Bottom"
         }
     }
@@ -48,6 +52,7 @@ enum WindowPosition: String, CaseIterable {
 // MARK: - Appearance Manager
 class AppearanceManager {
     static let shared = AppearanceManager()
+    static let windowWidthRange: ClosedRange<Double> = 300...3000
 
     /// The app's defaults, or a throwaway suite under tests so they never touch the user's real settings.
     static let appDefaults: UserDefaults = {
@@ -73,6 +78,8 @@ class AppearanceManager {
         static let fontName = "system"
         static let fontSize: CGFloat = 13.0
         static let windowPosition = WindowPosition.top
+        static let usesFullWidth = true
+        static let windowWidth: CGFloat = 900
         static let screenSelection = ScreenSelection.activeWindow
         static let showIcons = false
     }
@@ -147,6 +154,21 @@ class AppearanceManager {
         set { defaults.set(newValue.rawValue, forKey: UserDefaults.AppearanceKeys.windowPosition) }
     }
 
+    var usesFullWidth: Bool {
+        get { defaults.object(forKey: UserDefaults.AppearanceKeys.usesFullWidth) as? Bool ?? Defaults.usesFullWidth }
+        set { defaults.set(newValue, forKey: UserDefaults.AppearanceKeys.usesFullWidth) }
+    }
+
+    var windowWidth: CGFloat {
+        get {
+            let stored = defaults.object(forKey: UserDefaults.AppearanceKeys.windowWidth) as? NSNumber
+            return Self.clampedWindowWidth(stored.map { CGFloat($0.doubleValue) } ?? Defaults.windowWidth)
+        }
+        set {
+            defaults.set(Double(Self.clampedWindowWidth(newValue)), forKey: UserDefaults.AppearanceKeys.windowWidth)
+        }
+    }
+
     var screenSelection: ScreenSelection {
         get {
             defaults.string(forKey: UserDefaults.AppearanceKeys.screenSelection)
@@ -161,6 +183,11 @@ class AppearanceManager {
     }
 
     // MARK: - Helper Methods
+    private static func clampedWindowWidth(_ width: CGFloat) -> CGFloat {
+        guard width.isFinite else { return Defaults.windowWidth }
+        return min(max(width, CGFloat(windowWidthRange.lowerBound)), CGFloat(windowWidthRange.upperBound))
+    }
+
     private func colorForKey(_ key: String) -> NSColor? {
         guard let data = defaults.data(forKey: key) else { return nil }
         return try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: data)
@@ -184,6 +211,8 @@ class AppearanceManager {
         fontName = Defaults.fontName
         fontSize = Defaults.fontSize
         windowPosition = Defaults.windowPosition
+        usesFullWidth = Defaults.usesFullWidth
+        windowWidth = Defaults.windowWidth
         screenSelection = Defaults.screenSelection
         showIcons = Defaults.showIcons
     }

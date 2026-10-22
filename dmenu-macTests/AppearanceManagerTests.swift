@@ -12,6 +12,8 @@ struct AppearanceDefaultsSnapshot {
         UserDefaults.AppearanceKeys.fontName,
         UserDefaults.AppearanceKeys.fontSize,
         UserDefaults.AppearanceKeys.windowPosition,
+        UserDefaults.AppearanceKeys.usesFullWidth,
+        UserDefaults.AppearanceKeys.windowWidth,
         UserDefaults.AppearanceKeys.screenSelection,
         UserDefaults.AppearanceKeys.showIcons
     ]
@@ -130,8 +132,44 @@ final class AppearanceManagerTests: XCTestCase {
     }
 
     func testWindowPositionRoundTrip() {
-        manager.windowPosition = .bottom
-        XCTAssertEqual(AppearanceManager().windowPosition, .bottom)
+        for position in WindowPosition.allCases {
+            manager.windowPosition = position
+            XCTAssertEqual(AppearanceManager().windowPosition, position)
+        }
+    }
+
+    func testWindowWidthDefaultsPreserveFullWidthWith900PointCustomWidth() {
+        XCTAssertTrue(manager.usesFullWidth)
+        XCTAssertEqual(manager.windowWidth, 900)
+    }
+
+    func testCustomWidthRoundTripsAndSurvivesFullWidthToggle() {
+        manager.usesFullWidth = false
+        manager.windowWidth = 1200
+        XCTAssertFalse(AppearanceManager().usesFullWidth)
+        XCTAssertEqual(AppearanceManager().windowWidth, 1200)
+
+        manager.usesFullWidth = true
+        XCTAssertEqual(AppearanceManager().windowWidth, 1200)
+    }
+
+    func testWindowWidthIsClampedWhenWrittenOrRead() {
+        for (value, expected): (CGFloat, CGFloat) in [(-1, 300), (200, 300), (4000, 3000)] {
+            manager.windowWidth = value
+            XCTAssertEqual(AppearanceManager().windowWidth, expected)
+
+            AppearanceManager.appDefaults.set(Double(value), forKey: UserDefaults.AppearanceKeys.windowWidth)
+            XCTAssertEqual(manager.windowWidth, expected)
+        }
+    }
+
+    func testInvalidWindowWidthFallsBackTo900Points() {
+        for value in [CGFloat.nan, .infinity, -.infinity] {
+            manager.windowWidth = value
+            XCTAssertEqual(AppearanceManager().windowWidth, 900)
+        }
+        AppearanceManager.appDefaults.set("invalid", forKey: UserDefaults.AppearanceKeys.windowWidth)
+        XCTAssertEqual(manager.windowWidth, 900)
     }
 
     func testUnknownWindowPositionFallsBackToDefault() {
@@ -197,7 +235,9 @@ final class AppearanceManagerTests: XCTestCase {
         manager.windowOpacity = 0.3
         manager.fontName = "Menlo-Regular"
         manager.fontSize = 30
-        manager.windowPosition = .bottom
+        manager.windowPosition = .center
+        manager.usesFullWidth = false
+        manager.windowWidth = 1500
         manager.screenSelection = .primary
         manager.showIcons = true
 
@@ -211,6 +251,8 @@ final class AppearanceManagerTests: XCTestCase {
         XCTAssertEqual(manager.fontName, "system")
         XCTAssertEqual(manager.fontSize, 13.0, accuracy: 0.0001)
         XCTAssertEqual(manager.windowPosition, .top)
+        XCTAssertTrue(manager.usesFullWidth)
+        XCTAssertEqual(manager.windowWidth, 900)
         XCTAssertEqual(manager.screenSelection, .activeWindow)
         XCTAssertFalse(manager.showIcons)
     }
