@@ -2,7 +2,7 @@
 
 @README.md
 
-The README covers the project, usage, and build/test/lint commands. Update the README whenever something applies to humans too. Keep this file for agent-only notes.
+The README describes fork differences. Build, test and lint commands are in `docs/development.md`; read it before building or testing. Update those documents when changing behavior or development workflows. Keep this file for agent-only notes.
 
 ## Gotchas
 
@@ -18,6 +18,8 @@ The README covers the project, usage, and build/test/lint commands. Update the R
 - Hardened runtime is on. Anything new that needs an entitlement (Apple Events, etc.) goes in `src/dmenu-mac.entitlements`, or notarized builds break at runtime while Debug builds keep working.
 
 ## Git Commits
+
+Use `flowrange` for public maintainer attribution in documentation and commit messages.
 
 Use the repository's configured author (`flowrange`) for fork commits. For work
 developed with Codex, include this trailer after a blank line in the commit body:
