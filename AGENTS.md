@@ -25,3 +25,17 @@ developed with Codex, include this trailer after a blank line in the commit body
 ```
 Co-authored-by: Codex <codex@openai.com>
 ```
+
+## Agent skills
+
+### Issue tracker
+
+Local Markdown tickets and specs in the ignored `.scratch/` directory. Before reading or writing tickets, read `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Five default triage states, recorded in local ticket metadata. Before triaging, read `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` and `docs/adr/`. Before exploring the codebase, read `docs/agents/domain.md`.
