@@ -15,7 +15,9 @@ struct AppearanceDefaultsSnapshot {
         UserDefaults.AppearanceKeys.usesFullWidth,
         UserDefaults.AppearanceKeys.windowWidth,
         UserDefaults.AppearanceKeys.screenSelection,
-        UserDefaults.AppearanceKeys.showIcons
+        UserDefaults.AppearanceKeys.showIcons,
+        UserDefaults.AppearanceKeys.resultsLayout,
+        UserDefaults.AppearanceKeys.visibleRows
     ]
 
     private let saved: [String: Any]
@@ -72,6 +74,16 @@ final class AppearanceManagerTests: XCTestCase {
     }
 
     // MARK: - Persistence
+
+    func testVisibleRowsAreLimitedToThreeThroughTwentyWhenWrittenOrRead() {
+        for (value, expected) in [(-1, 3), (2, 3), (21, 20)] {
+            manager.visibleRows = value
+            XCTAssertEqual(AppearanceManager().visibleRows, expected)
+
+            AppearanceManager.appDefaults.set(value, forKey: UserDefaults.AppearanceKeys.visibleRows)
+            XCTAssertEqual(manager.visibleRows, expected)
+        }
+    }
 
     func testTestsNeverWriteTheRealDefaults() {
         XCTAssertFalse(AppearanceManager.appDefaults === UserDefaults.standard)

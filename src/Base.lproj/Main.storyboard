@@ -47,28 +47,25 @@
                         <rect key="frame" x="0.0" y="0.0" width="629" height="31"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Fjb-7T-x1e" customClass="InputField" customModule="dmenu_mac" customModuleProvider="target">
+                            <textField focusRingType="none" verticalHuggingPriority="750" id="Fjb-7T-x1e" customClass="InputField" customModule="dmenu_mac" customModuleProvider="target">
                                 <rect key="frame" x="10" y="0.0" width="150" height="31"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="150" id="gz9-SZ-TTB"/>
-                                    <constraint firstAttribute="height" constant="31" id="oAG-TV-bUz"/>
-                                </constraints>
+                                <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" focusRingType="none" alignment="left" placeholderString="Search" drawsBackground="YES" id="pMg-YR-zKP" customClass="VerticalAlignedTextFieldCell" customModule="dmenu_mac" customModuleProvider="target">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" white="1" alpha="0.0" colorSpace="deviceWhite"/>
                                 </textFieldCell>
                             </textField>
-                            <scrollView fixedFrame="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" verticalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="QVh-If-BUC">
+                            <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" verticalScrollElasticity="none" id="QVh-If-BUC">
                                 <rect key="frame" x="174" y="0.0" width="416" height="31"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <autoresizingMask key="autoresizingMask"/>
                                 <clipView key="contentView" autoresizesSubviews="NO" drawsBackground="NO" copiesOnScroll="NO" id="zRh-Jt-rH1">
                                     <rect key="frame" x="0.0" y="0.0" width="416" height="31"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <view id="5lG-jR-0ih" customClass="ResultsView" customModule="dmenu_mac" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="-3674" width="418" height="31"/>
-                                            <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
+                                            <autoresizingMask key="autoresizingMask"/>
                                         </view>
                                     </subviews>
                                     <color key="backgroundColor" red="0.11764705882352941" green="0.11764705882352941" blue="0.11764705882352941" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -83,11 +80,6 @@
                                 </scroller>
                             </scrollView>
                         </subviews>
-                        <constraints>
-                            <constraint firstAttribute="bottom" secondItem="Fjb-7T-x1e" secondAttribute="bottom" id="J9X-bX-kJ0"/>
-                            <constraint firstItem="Fjb-7T-x1e" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" id="x2n-mW-u0G"/>
-                            <constraint firstItem="Fjb-7T-x1e" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="10" id="yFY-Az-NlG"/>
-                        </constraints>
                     </view>
                     <connections>
                         <outlet property="resultsText" destination="5lG-jR-0ih" id="bRp-pM-yOg"/>

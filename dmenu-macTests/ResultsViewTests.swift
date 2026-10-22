@@ -3,14 +3,18 @@ import XCTest
 
 final class ResultsViewTests: XCTestCase {
     var view: ResultsView!
+    private var snapshot: AppearanceDefaultsSnapshot!
 
     override func setUp() {
         super.setUp()
+        snapshot = AppearanceDefaultsSnapshot()
+        AppearanceDefaultsSnapshot.clear()
         view = ResultsView(frame: NSRect(x: 0, y: 0, width: 400, height: 30))
     }
 
     override func tearDown() {
         view = nil
+        snapshot.restore()
         super.tearDown()
     }
 
@@ -294,5 +298,42 @@ final class ResultsViewTests: XCTestCase {
         image.lockFocus()
         view.draw(view.bounds)
         image.unlockFocus()
+    }
+}
+
+extension ResultsViewTests {
+    func testVerticalResultsFillWidthAndRunFromTopToBottom() {
+        AppearanceManager.shared.resultsLayout = .vertical
+        view = ResultsView(frame: NSRect(x: 0, y: 0, width: 400, height: 31))
+        view.list = items("first", "second", "third")
+
+        XCTAssertTrue(view.isFlipped)
+        XCTAssertEqual(view.frame.size, NSSize(width: 400, height: 93))
+        XCTAssertEqual(view.selectedRect, NSRect(x: 0, y: 0, width: 400, height: 31))
+
+        view.selectedIndex = 1
+        XCTAssertEqual(view.selectedRect, NSRect(x: 0, y: 31, width: 400, height: 31))
+        XCTAssertEqual(view.visibleRange(in: view.selectedRect), 1..<2)
+    }
+
+    func testVerticalSelectionScrollsAndFitsAResizedViewport() {
+        AppearanceManager.shared.resultsLayout = .vertical
+        let scroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: 400, height: 93))
+        scroll.documentView = view
+        view.list = (0..<30).map { ListItem(name: "Result \($0)", data: nil) }
+        view.selectedIndex = 29
+        XCTAssertTrue(view.visibleRect.contains(view.selectedRect))
+        XCTAssertEqual(view.visibleRange(in: view.visibleRect), 27..<30)
+
+        scroll.setFrameSize(NSSize(width: 200, height: 62))
+        view.invalidateLayout()
+        XCTAssertEqual(view.frame.width, 200)
+        XCTAssertEqual(view.selectedIndex, 29)
+        XCTAssertTrue(view.visibleRect.contains(view.selectedRect))
+
+        view.list = items("only result")
+        XCTAssertEqual(view.selectedIndex, 0)
+        XCTAssertEqual(view.visibleRect.minY, 0)
+        XCTAssertTrue(view.visibleRect.contains(view.selectedRect))
     }
 }

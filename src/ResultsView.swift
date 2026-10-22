@@ -16,7 +16,7 @@
 
 import Cocoa
 
-/// Draws results as a single horizontal row. Text is measured once per list/font change
+/// Draws results as a horizontal row or a vertical list. Text is measured once per list/font change
 /// (`layoutItems`), so `draw` only paints the items intersecting the dirty rect.
 class ResultsView: NSView {
     let rectFillPadding: CGFloat = 5
@@ -35,6 +35,11 @@ class ResultsView: NSView {
     private var itemIconURLs: [URL?] = []
     /// Square icon side, matching the text height; 0 when icons are off.
     private(set) var iconSide: CGFloat = 0
+
+    override var isFlipped: Bool { true }
+
+    private var isVertical: Bool { appearanceManager.resultsLayout == .vertical }
+    private var rowHeight: CGFloat { appearanceManager.resultRowHeight }
 
     var selectedRect: NSRect {
         return highlightRect(at: selectedIndexValue)
@@ -125,7 +130,10 @@ class ResultsView: NSView {
         }
 
         // Trailing padding mirrors the leading one instead of leaving a full item gap.
-        setFrameSize(NSSize(width: textX - itemSpacing + rectFillPadding, height: frame.height))
+        let viewport = enclosingScrollView?.contentSize ?? frame.size
+        let size = isVertical ? NSSize(width: viewport.width, height: CGFloat(drawList.count) * rowHeight) :
+            NSSize(width: textX - itemSpacing + rectFillPadding, height: viewport.height)
+        setFrameSize(size)
         needsDisplay = true
         scrollToVisible(selectedRect)
     }
@@ -133,6 +141,10 @@ class ResultsView: NSView {
     /// Icon (if any) plus text of one item.
     private func contentRect(at index: Int) -> NSRect {
         let size = itemSizes[index]
+        if isVertical {
+            return NSRect(x: rectFillPadding, y: CGFloat(index) * rowHeight + (rowHeight - size.height) / 2,
+                          width: max(0, bounds.width - 2 * rectFillPadding), height: size.height)
+        }
         return NSRect(x: itemOffsets[index], y: (bounds.height - size.height) / 2,
                       width: size.width, height: size.height)
     }
@@ -141,13 +153,22 @@ class ResultsView: NSView {
         guard index >= 0, index < itemSizes.count else {
             return NSRect()
         }
+        if isVertical {
+            return NSRect(x: 0, y: CGFloat(index) * rowHeight, width: bounds.width, height: rowHeight)
+        }
         return contentRect(at: index).insetBy(dx: -rectFillPadding, dy: -rectFillPadding)
     }
 
-    /// Indices of the items whose highlight rect overlaps `rect` (touching edges don't count,
-    /// as neighbouring highlights share an edge). Offsets are sorted, so the first candidate
-    /// is found by binary search and the scan stops past the right edge.
+    /// Indices whose highlight overlaps `rect`; touching edges don't count.
+    /// Vertical rows have a fixed height. Horizontal offsets use binary search followed
+    /// by a scan that stops past the right edge.
     func visibleRange(in rect: NSRect) -> Range<Int> {
+        if isVertical {
+            guard rect.maxX > bounds.minX, rect.minX < bounds.maxX else { return 0..<0 }
+            let start = min(itemSizes.count, max(0, Int(floor(rect.minY / rowHeight))))
+            let end = min(itemSizes.count, max(start, Int(ceil(rect.maxY / rowHeight))))
+            return start..<end
+        }
         var low = 0
         var high = itemSizes.count
         while low < high {
@@ -168,16 +189,21 @@ class ResultsView: NSView {
 
     /// Text offsets are fractional, and an icon straddling device pixels gets resampled
     /// and looks soft, so snap it to the backing grid. Text keeps its subpixel position.
-    func iconRect(at originX: CGFloat) -> NSRect {
-        let rect = NSRect(x: originX, y: (bounds.height - iconSide) / 2, width: iconSide, height: iconSide)
+    func iconRect(at originX: CGFloat, originY: CGFloat? = nil) -> NSRect {
+        let rect = NSRect(x: originX, y: originY ?? (bounds.height - iconSide) / 2, width: iconSide, height: iconSide)
         return backingAlignedRect(rect, options: .alignAllEdgesNearest)
     }
 
     override func draw(_ dirtyRect: NSRect) {
-        let textAttributes: [NSAttributedString.Key: Any] = [
+        var textAttributes: [NSAttributedString.Key: Any] = [
             .font: appearanceManager.currentFont,
             .foregroundColor: appearanceManager.resultsTextColor
         ]
+        if isVertical {
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.lineBreakMode = .byTruncatingTail
+            textAttributes[.paragraphStyle] = paragraph
+        }
 
         NSGraphicsContext.current?.imageInterpolation = .high
 
@@ -189,7 +215,8 @@ class ResultsView: NSView {
 
             var textRect = contentRect(at: i)
             if let iconURL = itemIconURLs[i] {
-                IconCache.shared.icon(for: iconURL).draw(in: iconRect(at: textRect.minX), from: .zero,
+                let iconFrame = iconRect(at: textRect.minX, originY: textRect.midY - iconSide / 2)
+                IconCache.shared.icon(for: iconURL).draw(in: iconFrame, from: .zero,
                                                         operation: .sourceOver, fraction: 1,
                                                         respectFlipped: true, hints: nil)
                 textRect.origin.x += iconSide + iconSpacing

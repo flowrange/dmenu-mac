@@ -31,6 +31,8 @@ extension UserDefaults {
         static let windowWidth = "appearance.windowWidth"
         static let screenSelection = "appearance.screenSelection"
         static let showIcons = "appearance.showIcons"
+        static let resultsLayout = "appearance.resultsLayout"
+        static let visibleRows = "appearance.visibleRows"
     }
 }
 
@@ -49,10 +51,23 @@ enum WindowPosition: String, CaseIterable {
     }
 }
 
+enum ResultsLayout: String, CaseIterable {
+    case horizontal
+    case vertical
+
+    var title: String {
+        switch self {
+        case .horizontal: return "Horizontal"
+        case .vertical: return "Vertical"
+        }
+    }
+}
+
 // MARK: - Appearance Manager
 class AppearanceManager {
     static let shared = AppearanceManager()
     static let windowWidthRange: ClosedRange<Double> = 300...3000
+    static let visibleRowsRange = 3...20
 
     /// The app's defaults, or a throwaway suite under tests so they never touch the user's real settings.
     static let appDefaults: UserDefaults = {
@@ -82,6 +97,8 @@ class AppearanceManager {
         static let windowWidth: CGFloat = 900
         static let screenSelection = ScreenSelection.activeWindow
         static let showIcons = false
+        static let resultsLayout = ResultsLayout.horizontal
+        static let visibleRows = 10
     }
 
     // MARK: - Color Properties
@@ -146,6 +163,28 @@ class AppearanceManager {
     }
 
     // MARK: - Layout Properties
+    /// A line of text with padding, shared by the search field and vertical result rows.
+    var resultRowHeight: CGFloat {
+        let font = currentFont
+        return max(31, ceil(font.ascender - font.descender + font.leading) + 10)
+    }
+
+    var resultsLayout: ResultsLayout {
+        get {
+            defaults.string(forKey: UserDefaults.AppearanceKeys.resultsLayout)
+                .flatMap(ResultsLayout.init(rawValue:)) ?? Defaults.resultsLayout
+        }
+        set { defaults.set(newValue.rawValue, forKey: UserDefaults.AppearanceKeys.resultsLayout) }
+    }
+
+    var visibleRows: Int {
+        get {
+            let stored = defaults.object(forKey: UserDefaults.AppearanceKeys.visibleRows) as? Int
+            return Self.clampedVisibleRows(stored ?? Defaults.visibleRows)
+        }
+        set { defaults.set(Self.clampedVisibleRows(newValue), forKey: UserDefaults.AppearanceKeys.visibleRows) }
+    }
+
     var windowPosition: WindowPosition {
         get {
             defaults.string(forKey: UserDefaults.AppearanceKeys.windowPosition)
@@ -183,6 +222,10 @@ class AppearanceManager {
     }
 
     // MARK: - Helper Methods
+    private static func clampedVisibleRows(_ rows: Int) -> Int {
+        min(max(rows, visibleRowsRange.lowerBound), visibleRowsRange.upperBound)
+    }
+
     private static func clampedWindowWidth(_ width: CGFloat) -> CGFloat {
         guard width.isFinite else { return Defaults.windowWidth }
         return min(max(width, CGFloat(windowWidthRange.lowerBound)), CGFloat(windowWidthRange.upperBound))
@@ -215,6 +258,8 @@ class AppearanceManager {
         windowWidth = Defaults.windowWidth
         screenSelection = Defaults.screenSelection
         showIcons = Defaults.showIcons
+        resultsLayout = Defaults.resultsLayout
+        visibleRows = Defaults.visibleRows
     }
 }
 

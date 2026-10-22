@@ -72,10 +72,12 @@ final class SearchWindowTests: XCTestCase {
         for area in [NSRect(x: -640, y: 0, width: 640, height: 400),
                      NSRect(x: 0, y: 1080, width: 250, height: 400)] {
             for position in WindowPosition.allCases {
-                let frame = SearchWindow.frame(for: position, in: area, width: 900, height: 30)
-                XCTAssertEqual(frame.width, area.width)
-                XCTAssertEqual(frame.midX, area.midX)
-                XCTAssertTrue(area.contains(frame))
+                for height: CGFloat in [31, 341, 1000] {
+                    let frame = SearchWindow.frame(for: position, in: area, width: 900, height: height)
+                    XCTAssertEqual(frame.width, area.width)
+                    XCTAssertEqual(frame.midX, area.midX)
+                    XCTAssertTrue(area.contains(frame))
+                }
             }
         }
     }
@@ -160,5 +162,85 @@ final class SearchWindowTests: XCTestCase {
             let visibleFrame = NSRect(x: 1520, y: -150, width: 1840, height: 995)
         }
         XCTAssertEqual(SearchWindow.barArea(of: Screen()), NSRect(x: 1440, y: -150, width: 1920, height: 995))
+    }
+
+    func testVerticalStoryboardPlacesSearchAboveTenRowsAndRestoresHorizontalHeight() throws {
+        let snapshot = AppearanceDefaultsSnapshot()
+        defer { snapshot.restore() }
+        AppearanceDefaultsSnapshot.clear()
+        let model = AppearanceSettingsModel()
+        model.resultsLayout = .vertical
+        model.usesFullWidth = false
+        model.windowWidth = 300
+        let window = try makeLauncher()
+        defer { window.orderOut(nil) }
+        let controller = try XCTUnwrap(window.contentViewController as? SearchViewController)
+        controller.updatePosition()
+        let scroll = try XCTUnwrap(controller.view.subviews.compactMap { $0 as? NSScrollView }.first)
+        let search = try XCTUnwrap(controller.view.subviews.compactMap { $0 as? InputField }.first)
+        let results = try XCTUnwrap(scroll.documentView as? ResultsView)
+        results.selectedIndex = 29
+
+        XCTAssertEqual(window.frame.size, NSSize(width: 300, height: 341))
+        XCTAssertEqual(search.frame.maxY, controller.view.bounds.maxY)
+        XCTAssertEqual(search.frame.width, 280)
+        XCTAssertEqual(scroll.frame.maxY, search.frame.minY)
+        XCTAssertEqual(scroll.contentSize.height, 310)
+        XCTAssertEqual(results.frame.width, scroll.contentSize.width)
+        XCTAssertTrue(results.visibleRect.contains(results.selectedRect))
+
+        model.resultsLayout = .horizontal
+        XCTAssertEqual(window.frame.height, 31)
+        XCTAssertEqual(results.selectedIndex, 29)
+        XCTAssertTrue(results.visibleRect.intersects(results.selectedRect))
+
+        model.resultsLayout = .vertical
+        model.visibleRows = 3
+        XCTAssertEqual(window.frame.height, 124)
+        XCTAssertTrue(results.visibleRect.contains(results.selectedRect))
+        results.clear()
+        XCTAssertEqual(window.frame.height, 124)
+        XCTAssertEqual(results.visibleRect.minY, 0)
+    }
+
+    private func makeLauncher() throws -> SearchWindow {
+        let storyboard = NSStoryboard(name: "Main", bundle: Bundle(for: SearchViewController.self))
+        let controller = try XCTUnwrap(storyboard.instantiateController(
+            withIdentifier: "SearchViewController"
+        ) as? SearchViewController)
+        controller.listProvider = MockListProvider(items: (0..<30).map { ListItem(name: "Result \($0)", data: nil) })
+        controller.monitorOverride = 0
+        let window = SearchWindow(contentRect: NSRect(x: 0, y: 0, width: 629, height: 31),
+                                  styleMask: .borderless, backing: .buffered, defer: false)
+        window.contentViewController = controller
+        return window
+    }
+
+    func testTallVerticalWindowFitsSelectedScreenAndKeepsLargeFontSelectionVisible() throws {
+        let snapshot = AppearanceDefaultsSnapshot()
+        defer { snapshot.restore() }
+        AppearanceDefaultsSnapshot.clear()
+        let model = AppearanceSettingsModel()
+        model.resultsLayout = .vertical
+        model.visibleRows = 20
+        model.fontSize = 72
+        model.showIcons = true
+        model.usesFullWidth = false
+        let screen = try XCTUnwrap(NSScreen.screens.first)
+        let window = try makeLauncher()
+        defer { window.orderOut(nil) }
+        let controller = try XCTUnwrap(window.contentViewController as? SearchViewController)
+        let scroll = try XCTUnwrap(controller.view.subviews.compactMap { $0 as? NSScrollView }.first)
+        let results = try XCTUnwrap(scroll.documentView as? ResultsView)
+
+        for position in WindowPosition.allCases {
+            controller.windowPositionOverride = position
+            controller.updatePosition()
+            results.selectedIndex = 29
+            XCTAssertLessThanOrEqual(window.frame.height, screen.visibleFrame.height)
+            XCTAssertTrue(screen.visibleFrame.contains(window.frame))
+            XCTAssertTrue(results.visibleRect.contains(results.selectedRect))
+            XCTAssertGreaterThan(results.selectedRect.height, 72)
+        }
     }
 }

@@ -22,6 +22,7 @@ final class AppearanceSettingsModel: NSObject, ObservableObject {
     static let opacityRange: ClosedRange<Double> = 0.2...1.0
     static let fontSizeRange: ClosedRange<Double> = 8...72
     static let windowWidthRange = AppearanceManager.windowWidthRange
+    static let visibleRowsRange = AppearanceManager.visibleRowsRange
 
     private let manager: AppearanceManager
 
@@ -38,6 +39,16 @@ final class AppearanceSettingsModel: NSObject, ObservableObject {
     }
 
     // MARK: - Window
+
+    var resultsLayout: ResultsLayout {
+        get { manager.resultsLayout }
+        set { update { manager.resultsLayout = newValue } }
+    }
+
+    var visibleRows: Int {
+        get { manager.visibleRows }
+        set { update { manager.visibleRows = newValue } }
+    }
 
     var windowPosition: WindowPosition {
         get { manager.windowPosition }

@@ -5,8 +5,8 @@ keyboard-driven macOS launcher by [oNaiPs](https://github.com/oNaiPs).
 
 ## What changed
 
-Based on upstream **0.9.0**, this fork adds a **Center** window position and an
-adjustable width.
+Based on upstream **0.9.0**, this fork adds a **Center** window position,
+adjustable width and an optional vertical results list.
 
 To use a compact, centered launcher:
 
@@ -19,8 +19,15 @@ horizontally within the selected screen's usable area, avoiding a side Dock and
 shrinking to fit smaller screens. Results remain horizontal, with the selected
 item kept visible when the window narrows.
 
-Top and Full width remain the defaults. Appearance settings persist and can be
-reset with **Reset to Defaults**.
+For a vertical list, set **Results** to **Vertical** in **Settings → Appearance**.
+The search field sits above **10 visible rows** by default, adjustable from 3 to
+20. **↑/↓** or **Tab/Shift+Tab** select results and wrap at either end;
+**←/→** edit the query. The list scrolls to keep the selection visible. Its height
+stays fixed while searching, grows with the font and is limited to the available
+screen height. Position and width controls work in both layouts.
+
+Top, Full width and Horizontal remain the defaults. Appearance settings persist;
+**Reset to Defaults** also restores the vertical row count to 10.
 
 No fork binaries have been released. Homebrew and Nix install the upstream app;
 build this fork from source to use these controls.

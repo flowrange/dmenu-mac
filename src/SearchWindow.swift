@@ -47,7 +47,9 @@ class SearchWindow: NSPanel {
         let appearance = AppearanceManager.shared
         let area = Self.barArea(of: screen, fullWidth: appearance.usesFullWidth)
         let width = appearance.usesFullWidth ? nil : appearance.windowWidth
-        let frame = Self.frame(for: position, in: area, width: width, height: self.frame.height)
+        let height = appearance.resultsLayout == .vertical ?
+            appearance.resultRowHeight * CGFloat(appearance.visibleRows + 1) : 31
+        let frame = Self.frame(for: position, in: area, width: width, height: height)
         setFrame(frame, display: false)
     }
 

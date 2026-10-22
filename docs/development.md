@@ -35,12 +35,19 @@ If `swiftlint` is not on your PATH, use the plugin's bundled macOS executable at
 `<project DerivedData>/SourcePackages/artifacts/swiftlintplugins/SwiftLintBinary/SwiftLintBinary.artifactbundle/macos/swiftlint`
 with `--strict` after Xcode has resolved the packages.
 
-For window layout changes, run the geometry, appearance and screen-selection
-tests along with the full suite. Manually check **Settings → Appearance**:
+For window layout changes, run `SearchWindowTests`, `ResultsViewTests`,
+`SearchViewControllerCommandTests`, the appearance and screen-selection tests
+along with the full suite. Manually check **Settings → Appearance**:
 Top/Center/Bottom, Full width and a custom width, smaller and offset displays,
 and a side Dock. Check that relaunch preserves the settings and Reset to
 Defaults restores Top, Full width and the 900-point custom width. The command
 line `--bottom` and `--monitor` overrides, horizontal navigation and stdin mode
-should continue to work.
+should continue to work. For Vertical results, check 3/10/20 rows, a large font,
+icons, long labels, no matches and a short result list. Check Up/Down and
+Tab/Shift+Tab wrapping, Left/Right query editing, selection visibility after
+scrolling or resizing, and switching back to Horizontal. The vertical window
+keeps its height while filtering and fits within the available screen height;
+Reset to Defaults restores Horizontal and 10 rows. Appearance has a 600-point
+scrolling viewport so all controls remain reachable on shorter displays.
 
 Releases are cut with `scripts/release.sh`, see [RELEASING.md](../RELEASING.md).

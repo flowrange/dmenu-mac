@@ -58,6 +58,23 @@ final class AppearanceSettingsModelTests: XCTestCase {
 
     // MARK: - Writing settings
 
+    func testResultsLayoutAndVisibleRowsPersistAndReset() {
+        XCTAssertEqual(model.resultsLayout, .horizontal)
+        XCTAssertEqual(model.visibleRows, 10)
+
+        let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
+        model.resultsLayout = .vertical
+        wait(for: [notified], timeout: 1.0)
+        model.visibleRows = 15
+
+        XCTAssertEqual(AppearanceManager().resultsLayout, .vertical)
+        XCTAssertEqual(AppearanceManager().visibleRows, 15)
+
+        model.resetToDefaults()
+        XCTAssertEqual(model.resultsLayout, .horizontal)
+        XCTAssertEqual(model.visibleRows, 10)
+    }
+
     func testChangingPositionStoresItAndNotifies() {
         let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
         model.windowPosition = .center

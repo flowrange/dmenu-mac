@@ -24,6 +24,17 @@ struct AppearanceSettingsView: View {
     var body: some View {
         Form {
             Section("Window") {
+                Picker("Results", selection: $model.resultsLayout) {
+                    ForEach(ResultsLayout.allCases, id: \.self) { layout in
+                        Text(layout.title).tag(layout)
+                    }
+                }
+
+                Stepper("Visible rows: \(model.visibleRows)", value: $model.visibleRows,
+                        in: AppearanceSettingsModel.visibleRowsRange)
+                    .disabled(model.resultsLayout == .horizontal)
+                    .help("Vertical results only. The window height is limited to the available screen area.")
+
                 Picker("Position", selection: $model.windowPosition) {
                     ForEach(WindowPosition.allCases, id: \.self) { position in
                         Text(position.title).tag(position)
@@ -102,9 +113,7 @@ struct AppearanceSettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .scrollDisabled(true)
-        .fixedSize(horizontal: false, vertical: true)
-        .frame(width: SettingsLayout.paneWidth)
+        .frame(width: SettingsLayout.paneWidth, height: 600)
     }
 }
 

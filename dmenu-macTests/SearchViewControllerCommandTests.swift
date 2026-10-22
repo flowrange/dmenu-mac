@@ -7,9 +7,12 @@ final class SearchViewControllerCommandTests: XCTestCase {
     var mockProvider: MockListProvider!
     var searchText: InputField!
     var resultsView: ResultsView!
+    private var snapshot: AppearanceDefaultsSnapshot!
 
     override func setUp() {
         super.setUp()
+        snapshot = AppearanceDefaultsSnapshot()
+        AppearanceDefaultsSnapshot.clear()
         mockProvider = MockListProvider(items: [
             ListItem(name: "Safari", data: nil),
             ListItem(name: "Calculator", data: nil),
@@ -33,6 +36,7 @@ final class SearchViewControllerCommandTests: XCTestCase {
         mockProvider = nil
         searchText = nil
         resultsView = nil
+        snapshot.restore()
         super.tearDown()
     }
 
@@ -79,6 +83,34 @@ final class SearchViewControllerCommandTests: XCTestCase {
     }
 
     // MARK: - Navigation
+
+    func testVerticalNavigationUsesUpDownAndTabsAndLeavesLeftRightForEditing() {
+        AppearanceManager.shared.resultsLayout = .vertical
+        resultsView.invalidateLayout()
+
+        XCTAssertTrue(send(#selector(NSResponder.moveDown(_:))))
+        XCTAssertEqual(resultsView.selectedIndex, 1)
+        XCTAssertTrue(send(#selector(NSResponder.insertTab(_:))))
+        XCTAssertEqual(resultsView.selectedIndex, 2)
+        send(#selector(NSResponder.moveDown(_:)))
+        XCTAssertEqual(resultsView.selectedIndex, 0)
+        XCTAssertTrue(send(#selector(NSResponder.moveUp(_:))))
+        XCTAssertEqual(resultsView.selectedIndex, 2)
+        XCTAssertTrue(send(#selector(NSResponder.insertBacktab(_:))))
+        XCTAssertEqual(resultsView.selectedIndex, 1)
+
+        XCTAssertFalse(send(#selector(NSResponder.moveLeft(_:))))
+        XCTAssertFalse(send(#selector(NSResponder.moveRight(_:))))
+        XCTAssertEqual(resultsView.selectedItem()?.name, "Calendar")
+
+        send(#selector(NSResponder.insertNewline(_:)))
+        XCTAssertEqual(mockProvider.lastActionedItem?.name, "Calendar")
+
+        type("zzzzzzzzzz")
+        XCTAssertTrue(send(#selector(NSResponder.moveDown(_:))))
+        XCTAssertTrue(send(#selector(NSResponder.moveUp(_:))))
+        XCTAssertEqual(resultsView.selectedIndex, 0)
+    }
 
     func testMoveRightAdvancesSelection() {
         XCTAssertTrue(send(#selector(NSResponder.moveRight(_:))))

@@ -111,9 +111,32 @@ class SearchViewController: NSViewController, NSTextFieldDelegate, NSWindowDeleg
         windowPositionOverride ?? appearanceManager.windowPosition
     }
 
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        layoutResults()
+    }
+
+    private func layoutResults() {
+        guard let scroll = resultsText.enclosingScrollView else { return }
+        let isVertical = appearanceManager.resultsLayout == .vertical
+        let height = min(isVertical ? appearanceManager.resultRowHeight : 31, view.bounds.height)
+        searchText.frame = NSRect(x: 10, y: view.bounds.height - height,
+                                  width: isVertical ? max(0, view.bounds.width - 20) : 150, height: height)
+        scroll.frame = isVertical ?
+            NSRect(x: 10, y: 0, width: max(0, view.bounds.width - 20), height: view.bounds.height - height) :
+            NSRect(x: 174, y: 0, width: max(0, view.bounds.width - 213), height: height)
+        scroll.verticalLineScroll = appearanceManager.resultRowHeight
+        if (isVertical && resultsText.frame.width != scroll.contentSize.width) ||
+            (!isVertical && resultsText.frame.height != scroll.contentSize.height) {
+            resultsText.invalidateLayout()
+        }
+        resultsText.scrollToVisible(resultsText.selectedRect)
+    }
+
     func updatePosition() {
         guard let window = view.window as? SearchWindow else { return }
         window.updatePosition(windowPosition, monitor: monitorOverride)
+        view.needsLayout = true
         view.layoutSubtreeIfNeeded()
         resultsText.scrollToVisible(resultsText.selectedRect)
     }
@@ -196,20 +219,21 @@ class SearchViewController: NSViewController, NSTextFieldDelegate, NSWindowDeleg
     }
 
     func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-        let movingLeft: Bool =
-            commandSelector == #selector(moveLeft(_:)) ||
+        let isVertical = appearanceManager.resultsLayout == .vertical
+        let movingPrevious: Bool =
+            commandSelector == (isVertical ? #selector(moveUp(_:)) : #selector(moveLeft(_:))) ||
             commandSelector == #selector(insertBacktab(_:))
-        let movingRight: Bool =
-            commandSelector == #selector(moveRight(_:)) ||
+        let movingNext: Bool =
+            commandSelector == (isVertical ? #selector(moveDown(_:)) : #selector(moveRight(_:))) ||
             commandSelector == #selector(insertTab(_:))
 
-        if (movingLeft || movingRight) && resultsText.list.isEmpty {
+        if (movingPrevious || movingNext) && resultsText.list.isEmpty {
             return true
-        } else if movingLeft {
+        } else if movingPrevious {
             resultsText.selectedIndex = resultsText.selectedIndex == 0 ?
                 resultsText.list.count - 1 : resultsText.selectedIndex - 1
             return true
-        } else if movingRight {
+        } else if movingNext {
             resultsText.selectedIndex = (resultsText.selectedIndex + 1) % resultsText.list.count
             return true
         } else if ItemAction.isSubmit(commandSelector, event: NSApp.currentEvent) {
