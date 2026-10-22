@@ -19,4 +19,9 @@ The README covers the project, usage, and build/test/lint commands. Update the R
 
 ## Git Commits
 
-Plain commit messages, with no Claude Code references or co-authorship attribution.
+Use the repository's configured author (`flowrange`) for fork commits. For work
+developed with Codex, include this trailer after a blank line in the commit body:
+
+```
+Co-authored-by: Codex <codex@openai.com>
+```

@@ -1,6 +1,18 @@
 # dmenu-mac
 
-[![ci](https://github.com/oNaiPs/dmenu-mac/workflows/Build/badge.svg)](https://github.com/oNaiPs/dmenu-mac)
+[![ci](https://github.com/flowrange/dmenu-mac/workflows/Build/badge.svg)](https://github.com/flowrange/dmenu-mac/actions/workflows/main.yml)
+
+Personal fork by **flowrange + Codex**, based on
+[oNaiPs/dmenu-mac](https://github.com/oNaiPs/dmenu-mac), created by José Luis Pereira
+and its contributors.
+
+The fork starts from **0.9.0**, commit
+[`06738ec`](https://github.com/oNaiPs/dmenu-mac/commit/06738ecd86a65e95d19afaaebf24bca942b08b40).
+The fork currently retains the upstream application behavior.
+
+The usage documentation below describes the upstream application. Homebrew, Nix
+and upstream release downloads install the upstream version. This fork has no
+prebuilt release yet.
 
 A keyboard-only application launcher for macOS, inspired by [dmenu](https://tools.suckless.org/dmenu/).
 
@@ -163,6 +175,16 @@ Spotlight has to index everything on disk, and on machines with a lot of files t
 
 ## Development
 
+Requires the full Xcode application, including its macOS SDK and build tools.
+Command Line Tools alone cannot build this storyboard-based project.
+
+```sh
+git clone https://github.com/flowrange/dmenu-mac.git
+cd dmenu-mac
+git remote add upstream https://github.com/oNaiPs/dmenu-mac.git
+git fetch upstream
+```
+
 ```sh
 xcodebuild -skipPackagePluginValidation -skipMacroValidation \
   -project dmenu-mac.xcodeproj -scheme dmenu-mac -configuration Debug test
@@ -183,4 +205,12 @@ GPL-3.0. See [LICENSE](./LICENSE).
 
 ## Authors
 
-[@onaips](https://twitter.com/onaips)
+- [José Luis Pereira (oNaiPs)](https://github.com/oNaiPs) and the
+  [upstream contributors](https://github.com/oNaiPs/dmenu-mac/graphs/contributors):
+  original application.
+- [flowrange](https://github.com/flowrange): fork, direction and
+  validation on macOS.
+- [Codex](https://github.com/openai/codex), OpenAI's coding assistant: fork
+  preparation, documentation and development assistance.
+
+Original copyright notices and the GPL-3.0 license are retained.
