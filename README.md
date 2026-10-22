@@ -1,5 +1,7 @@
 # dmenu-mac — personal fork
 
+![Centered dmenu-mac launcher with vertical search results](docs/images/vertical-launcher.png)
+
 A personal fork of [dmenu-mac](https://github.com/oNaiPs/dmenu-mac), the
 keyboard-driven macOS launcher by [oNaiPs](https://github.com/oNaiPs).
 
