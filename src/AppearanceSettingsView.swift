@@ -75,6 +75,10 @@ struct AppearanceSettingsView: View {
                 }
 
                 Toggle("Show icons", isOn: $model.showIcons)
+
+                Toggle("Align result names", isOn: $model.alignResultNames)
+                    .disabled(!model.showIcons)
+                    .help("Reserves an empty space for results without an icon. Disable for a compact layout.")
             }
 
             Section("Colors") {

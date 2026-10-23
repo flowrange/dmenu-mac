@@ -99,6 +99,11 @@ final class AppearanceSettingsModel: NSObject, ObservableObject {
         }
     }
 
+    var alignResultNames: Bool {
+        get { manager.alignResultNames }
+        set { update { manager.alignResultNames = newValue } }
+    }
+
     // MARK: - Colors
 
     var searchTextColor: Color {

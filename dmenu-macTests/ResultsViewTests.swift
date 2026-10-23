@@ -191,18 +191,41 @@ final class ResultsViewTests: XCTestCase {
         }
     }
 
-    func testIconsWidenOnlyFileBackedItems() {
-        var plainWidth: CGFloat = 0
-        var appWidth: CGFloat = 0
+    func testIconsReserveSameSpaceForItemsWithAndWithoutIcons() {
+        view.list = [ListItem(name: "Calculator", data: nil)]
+        let widthWithoutIcons = view.frame.width
+        let textWithoutIcons = view.textRect(at: 0)
+
         withIcons(true) {
-            view.list = [ListItem(name: "Calculator", data: nil)]
-            plainWidth = view.frame.width
+            view.invalidateLayout()
+            let slotWidth = view.iconSide + view.iconSpacing
+            XCTAssertEqual(view.frame.width - widthWithoutIcons, slotWidth, accuracy: 0.0001)
+            XCTAssertEqual(view.textRect(at: 0).minX - textWithoutIcons.minX, slotWidth, accuracy: 0.0001)
+            XCTAssertEqual(view.textRect(at: 0).width, textWithoutIcons.width, accuracy: 0.0001)
+            let widthWithBlankIcon = view.frame.width
+            let textWithBlankIcon = view.textRect(at: 0)
+
             view.list = [ListItem(name: "Calculator", data: appURL)]
-            appWidth = view.frame.width
-            XCTAssertGreaterThan(view.iconSide, 0)
-            XCTAssertEqual(appWidth - plainWidth, view.iconSide + view.iconSpacing, accuracy: 0.0001)
+            XCTAssertEqual(view.frame.width, widthWithBlankIcon, accuracy: 0.0001)
+            XCTAssertEqual(view.textRect(at: 0), textWithBlankIcon)
             drawOffscreen()
+
+            view.list = [ListItem(name: "Calculator", data: nil)]
+            drawOffscreen()
+
+            AppearanceManager.shared.alignResultNames = false
+            view.invalidateLayout()
+            XCTAssertEqual(view.frame.width, widthWithoutIcons, accuracy: 0.0001)
+            XCTAssertEqual(view.textRect(at: 0), textWithoutIcons)
+            view.list = [ListItem(name: "Calculator", data: appURL)]
+            XCTAssertEqual(view.frame.width, widthWithBlankIcon, accuracy: 0.0001)
+            XCTAssertEqual(view.textRect(at: 0), textWithBlankIcon)
+            view.list = [ListItem(name: "Calculator", data: nil)]
         }
+
+        view.invalidateLayout()
+        XCTAssertEqual(view.frame.width, widthWithoutIcons, accuracy: 0.0001)
+        XCTAssertEqual(view.textRect(at: 0), textWithoutIcons)
     }
 
     func testIconRectSnapsToDevicePixels() {
@@ -302,6 +325,37 @@ final class ResultsViewTests: XCTestCase {
 }
 
 extension ResultsViewTests {
+    func testVerticalLabelsAlignWithBlankIconSlotsIncludingNoResults() {
+        AppearanceManager.shared.resultsLayout = .vertical
+        withIcons(true) {
+            view.list = [
+                ListItem(name: "Calculator", data: appURL),
+                ListItem(name: "Command", data: Command(commandLine: "echo hello")),
+                ListItem(name: "Piped choice", data: nil)
+            ]
+            let textX = view.rectFillPadding + view.iconSide + view.iconSpacing
+            for index in view.list.indices {
+                XCTAssertEqual(view.textRect(at: index).minX, textX, accuracy: 0.0001)
+                XCTAssertEqual(view.textRect(at: index).maxX, view.bounds.maxX - view.rectFillPadding,
+                               accuracy: 0.0001)
+            }
+            drawOffscreen()
+
+            AppearanceManager.shared.alignResultNames = false
+            view.invalidateLayout()
+            XCTAssertEqual(view.textRect(at: 0).minX, textX, accuracy: 0.0001)
+            XCTAssertEqual(view.textRect(at: 1).minX, view.rectFillPadding, accuracy: 0.0001)
+            XCTAssertEqual(view.textRect(at: 2).minX, view.rectFillPadding, accuracy: 0.0001)
+            AppearanceManager.shared.alignResultNames = true
+            view.clear()
+            XCTAssertEqual(view.textRect(at: 0).minX, textX, accuracy: 0.0001)
+            drawOffscreen()
+        }
+
+        view.invalidateLayout()
+        XCTAssertEqual(view.textRect(at: 0).minX, view.rectFillPadding, accuracy: 0.0001)
+    }
+
     func testVerticalResultsFillWidthAndRunFromTopToBottom() {
         AppearanceManager.shared.resultsLayout = .vertical
         view = ResultsView(frame: NSRect(x: 0, y: 0, width: 400, height: 31))

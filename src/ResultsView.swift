@@ -101,6 +101,11 @@ class ResultsView: NSView {
         layoutItems()
     }
 
+    private func iconColumnWidth(for url: URL?) -> CGFloat {
+        guard iconSide > 0, appearanceManager.alignResultNames || url != nil else { return 0 }
+        return iconSide + iconSpacing
+    }
+
     private func layoutItems() {
         drawList = resultsList.isEmpty ? [ListItem(name: "No results", data: nil)] : resultsList
         let font = appearanceManager.currentFont
@@ -119,10 +124,8 @@ class ResultsView: NSView {
         for item in drawList {
             var size = (item.name as NSString).size(withAttributes: attributes)
             let iconURL = showIcons ? item.fileURL : nil
-            if iconURL != nil {
-                size.width += iconSide + iconSpacing
-                size.height = max(size.height, iconSide)
-            }
+            size.width += iconColumnWidth(for: iconURL)
+            size.height = max(size.height, iconSide)
             itemSizes.append(size)
             itemOffsets.append(textX)
             itemIconURLs.append(iconURL)
@@ -147,6 +150,14 @@ class ResultsView: NSView {
         }
         return NSRect(x: itemOffsets[index], y: (bounds.height - size.height) / 2,
                       width: size.width, height: size.height)
+    }
+
+    /// When alignment is on, leave an empty icon column for results without an icon.
+    func textRect(at index: Int) -> NSRect {
+        let content = contentRect(at: index)
+        let inset = iconColumnWidth(for: itemIconURLs[index])
+        return NSRect(x: content.minX + inset, y: content.minY,
+                      width: max(0, content.width - inset), height: content.height)
     }
 
     private func highlightRect(at index: Int) -> NSRect {
@@ -213,17 +224,15 @@ class ResultsView: NSView {
                 highlightRect(at: i).fill()
             }
 
-            var textRect = contentRect(at: i)
+            let content = contentRect(at: i)
             if let iconURL = itemIconURLs[i] {
-                let iconFrame = iconRect(at: textRect.minX, originY: textRect.midY - iconSide / 2)
+                let iconFrame = iconRect(at: content.minX, originY: content.midY - iconSide / 2)
                 IconCache.shared.icon(for: iconURL).draw(in: iconFrame, from: .zero,
                                                         operation: .sourceOver, fraction: 1,
                                                         respectFlipped: true, hints: nil)
-                textRect.origin.x += iconSide + iconSpacing
-                textRect.size.width -= iconSide + iconSpacing
             }
 
-            (drawList[i].name as NSString).draw(in: textRect, withAttributes: textAttributes)
+            (drawList[i].name as NSString).draw(in: textRect(at: i), withAttributes: textAttributes)
         }
     }
 }

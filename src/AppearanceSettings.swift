@@ -32,6 +32,7 @@ extension UserDefaults {
         static let windowWidth = "appearance.windowWidth"
         static let screenSelection = "appearance.screenSelection"
         static let showIcons = "appearance.showIcons"
+        static let alignResultNames = "appearance.alignResultNames"
         static let resultsLayout = "appearance.resultsLayout"
         static let visibleRows = "appearance.visibleRows"
     }
@@ -99,6 +100,7 @@ class AppearanceManager {
         static let windowWidth: CGFloat = 900
         static let screenSelection = ScreenSelection.activeWindow
         static let showIcons = false
+        static let alignResultNames = true
         static let resultsLayout = ResultsLayout.horizontal
         static let visibleRows = 10
     }
@@ -228,6 +230,13 @@ class AppearanceManager {
         set { defaults.set(newValue, forKey: UserDefaults.AppearanceKeys.showIcons) }
     }
 
+    var alignResultNames: Bool {
+        get {
+            defaults.object(forKey: UserDefaults.AppearanceKeys.alignResultNames) as? Bool ?? Defaults.alignResultNames
+        }
+        set { defaults.set(newValue, forKey: UserDefaults.AppearanceKeys.alignResultNames) }
+    }
+
     // MARK: - Helper Methods
     private static func clampedVisibleRows(_ rows: Int) -> Int {
         min(max(rows, visibleRowsRange.lowerBound), visibleRowsRange.upperBound)
@@ -266,6 +275,7 @@ class AppearanceManager {
         windowWidth = Defaults.windowWidth
         screenSelection = Defaults.screenSelection
         showIcons = Defaults.showIcons
+        alignResultNames = Defaults.alignResultNames
         resultsLayout = Defaults.resultsLayout
         visibleRows = Defaults.visibleRows
     }

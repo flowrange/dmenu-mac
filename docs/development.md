@@ -57,6 +57,14 @@ keeps its height while filtering and fits within the available screen height;
 Reset to Defaults restores Horizontal and 10 rows. Appearance has a 600-point
 scrolling viewport so all controls remain reachable on shorter displays.
 
+For **Show icons**, check both layouts with apps, settings panes and commands
+mixed together, plus stdin choices and no matches. With **Align result names** on,
+items without icons must keep an empty icon slot and vertical labels must align;
+turn it off to remove only the empty slots. Both controls must update results
+immediately. Alignment is disabled in Settings when icons are off. Check larger
+fonts, long labels, scrolling and persistence after relaunch. Reset to Defaults
+turns icons off, enables alignment and removes the reserved space.
+
 For background changes, toggle **Blur background** over a window with detailed
 content in both results layouts. Check that text, icons and selection stay sharp,
 the effect fills the launcher after resizing, and **Window background** plus

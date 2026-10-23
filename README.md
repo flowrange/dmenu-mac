@@ -1,6 +1,6 @@
 # dmenu-mac — personal fork
 
-![Centered dmenu-mac launcher with vertical results and a blurred background](docs/images/vertical-launcher.png)
+![Centered dmenu-mac launcher with app icons, aligned names and background blur](docs/images/vertical-launcher.png)
 
 A personal fork of [dmenu-mac](https://github.com/oNaiPs/dmenu-mac), the
 keyboard-driven macOS launcher by [oNaiPs](https://github.com/oNaiPs).
@@ -29,6 +29,13 @@ Choose **Vertical** to stack results below the search field, with 3 to 20 visibl
 rows (initially 10). **↑/↓** or **Tab/Shift+Tab** select results; **←/→** edit the
 query. The list keeps the selection visible and its height stays fixed while
 filtering, growing with the font to fit within the screen. **Horizontal** remains the default.
+
+### Result name alignment
+
+Upstream provides application icons through **Show icons**. This fork adds
+**Align result names** (on by default): with icons enabled, it reserves a blank
+icon slot for results without an icon, keeping vertical labels aligned. Turn it
+off for a compact layout. Changes apply immediately.
 
 ### Background blur
 

@@ -148,6 +148,16 @@ final class AppearanceSettingsModelTests: XCTestCase {
         XCTAssertFalse(model.showIcons)
     }
 
+    func testTogglingResultNameAlignmentPersistsAndNotifies() {
+        XCTAssertTrue(model.alignResultNames)
+        let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
+        model.alignResultNames = false
+        wait(for: [notified], timeout: 1.0)
+
+        XCTAssertFalse(AppearanceManager().alignResultNames)
+        XCTAssertFalse(model.alignResultNames)
+    }
+
     func testTogglingShowIconsStoresItAndNotifies() {
         let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
         model.showIcons = true
@@ -204,12 +214,14 @@ final class AppearanceSettingsModelTests: XCTestCase {
         manager.windowWidth = 1500
         manager.screenSelection = .mouse
         manager.showIcons = true
+        manager.alignResultNames = false
 
         let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
         model.resetToDefaults()
         wait(for: [notified], timeout: 1.0)
 
         XCTAssertFalse(model.showIcons)
+        XCTAssertTrue(model.alignResultNames)
 
         XCTAssertEqual(manager.windowOpacity, 0.6, accuracy: 0.0001)
         XCTAssertEqual(model.opacityText, "60%")

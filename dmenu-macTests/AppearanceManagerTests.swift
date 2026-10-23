@@ -17,6 +17,7 @@ struct AppearanceDefaultsSnapshot {
         UserDefaults.AppearanceKeys.windowWidth,
         UserDefaults.AppearanceKeys.screenSelection,
         UserDefaults.AppearanceKeys.showIcons,
+        UserDefaults.AppearanceKeys.alignResultNames,
         UserDefaults.AppearanceKeys.resultsLayout,
         UserDefaults.AppearanceKeys.visibleRows
     ]
@@ -213,6 +214,12 @@ final class AppearanceManagerTests: XCTestCase {
         XCTAssertTrue(AppearanceManager().showIcons)
     }
 
+    func testResultNameAlignmentDefaultsToOnAndPersistsWhenDisabled() {
+        XCTAssertTrue(manager.alignResultNames)
+        manager.alignResultNames = false
+        XCTAssertFalse(AppearanceManager().alignResultNames)
+    }
+
     // MARK: - currentFont
 
     func testCurrentFontUsesSystemFontByDefault() {
@@ -253,6 +260,7 @@ final class AppearanceManagerTests: XCTestCase {
         manager.windowWidth = 1500
         manager.screenSelection = .primary
         manager.showIcons = true
+        manager.alignResultNames = false
 
         manager.resetToDefaults()
 
@@ -268,6 +276,7 @@ final class AppearanceManagerTests: XCTestCase {
         XCTAssertEqual(manager.windowWidth, 900)
         XCTAssertEqual(manager.screenSelection, .activeWindow)
         XCTAssertFalse(manager.showIcons)
+        XCTAssertTrue(manager.alignResultNames)
     }
 
     // MARK: - Keys and notifications
