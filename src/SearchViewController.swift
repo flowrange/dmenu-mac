@@ -33,6 +33,8 @@ class SearchViewController: NSViewController, NSTextFieldDelegate, NSWindowDeleg
     /// Screen index from the command line; takes precedence over the Appearance setting.
     var monitorOverride: Int?
     private let appearanceManager = AppearanceManager.shared
+    private let backgroundEffect = NSVisualEffectView()
+    private let backgroundTint = NSView()
 
     deinit {
         DistributedNotificationCenter.default.removeObserver(self)
@@ -42,6 +44,7 @@ class SearchViewController: NSViewController, NSTextFieldDelegate, NSWindowDeleg
     override func viewDidLoad() {
         super.viewDidLoad()
         searchText.delegate = self
+        configureBackground()
 
         DistributedNotificationCenter.default.addObserver(
             self,
@@ -97,6 +100,28 @@ class SearchViewController: NSViewController, NSTextFieldDelegate, NSWindowDeleg
         resumeApp()
     }
 
+    override func viewWillAppear() {
+        super.viewWillAppear()
+        updateColors()
+    }
+
+    private func configureBackground() {
+        backgroundEffect.material = .popover
+        backgroundEffect.blendingMode = .behindWindow
+        // The launcher takes keyboard focus without activating the app.
+        backgroundEffect.state = .active
+        backgroundEffect.frame = view.bounds
+        backgroundEffect.autoresizingMask = [.width, .height]
+        view.addSubview(backgroundEffect, positioned: .below, relativeTo: nil)
+
+        backgroundTint.wantsLayer = true
+        backgroundTint.frame = view.bounds
+        backgroundTint.autoresizingMask = [.width, .height]
+        view.addSubview(backgroundTint, positioned: .above, relativeTo: backgroundEffect)
+        searchText.drawsBackground = false
+        resultsText.enclosingScrollView?.drawsBackground = false
+    }
+
     @objc func interfaceModeChanged(sender: NSNotification) {
         updateColors()
     }
@@ -142,11 +167,18 @@ class SearchViewController: NSViewController, NSTextFieldDelegate, NSWindowDeleg
     }
 
     func updateColors() {
-        guard let window = NSApp.windows.first else { return }
-
-        window.isOpaque = false
-        window.backgroundColor = appearanceManager.windowBackgroundColor
+        let backgroundColor = appearanceManager.windowBackgroundColor
             .withAlphaComponent(appearanceManager.windowOpacity)
+        let blur = appearanceManager.blurBackground
+        backgroundEffect.isHidden = !blur
+        backgroundTint.isHidden = !blur
+        view.effectiveAppearance.performAsCurrentDrawingAppearance {
+            backgroundTint.layer?.backgroundColor = backgroundColor.cgColor
+        }
+        if let window = view.window {
+            window.isOpaque = false
+            window.backgroundColor = blur ? .clear : backgroundColor
+        }
         searchText.textColor = appearanceManager.searchTextColor
 
         // Update field editor if searchText is currently being edited

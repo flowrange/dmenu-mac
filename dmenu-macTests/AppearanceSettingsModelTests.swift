@@ -58,6 +58,24 @@ final class AppearanceSettingsModelTests: XCTestCase {
 
     // MARK: - Writing settings
 
+    func testBackgroundBlurPersistsNotifiesAndResets() {
+        XCTAssertFalse(model.blurBackground)
+
+        let notified = expectation(forNotification: .appearanceSettingsChanged, object: nil)
+        model.blurBackground = true
+        wait(for: [notified], timeout: 1.0)
+        XCTAssertTrue(AppearanceManager().blurBackground)
+
+        let other = AppearanceSettingsModel(manager: AppearanceManager())
+        XCTAssertTrue(other.blurBackground)
+        other.blurBackground = false
+        XCTAssertFalse(model.blurBackground)
+
+        model.blurBackground = true
+        model.resetToDefaults()
+        XCTAssertFalse(AppearanceManager().blurBackground)
+    }
+
     func testResultsLayoutAndVisibleRowsPersistAndReset() {
         XCTAssertEqual(model.resultsLayout, .horizontal)
         XCTAssertEqual(model.visibleRows, 10)

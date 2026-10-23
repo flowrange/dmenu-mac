@@ -35,6 +35,13 @@ If `swiftlint` is not on your PATH, use the plugin's bundled macOS executable at
 `<project DerivedData>/SourcePackages/artifacts/swiftlintplugins/SwiftLintBinary/SwiftLintBinary.artifactbundle/macos/swiftlint`
 with `--strict` after Xcode has resolved the packages.
 
+Building or testing does not update the installed app. To use a new build from
+macOS Apps or Spotlight, quit dmenu-mac from its menu bar menu and replace
+`dmenu-mac.app` in `~/Applications` with the newly built bundle, then reopen it.
+Settings are preserved. The build is in the project's DerivedData directory under
+`Build/Products/Debug/dmenu-mac.app`. Adding `-derivedDataPath build` to the build
+command gives it the predictable path `build/Build/Products/Debug/dmenu-mac.app`.
+
 For window layout changes, run `SearchWindowTests`, `ResultsViewTests`,
 `SearchViewControllerCommandTests`, the appearance and screen-selection tests
 along with the full suite. Manually check **Settings → Appearance**:
@@ -49,5 +56,14 @@ scrolling or resizing, and switching back to Horizontal. The vertical window
 keeps its height while filtering and fits within the available screen height;
 Reset to Defaults restores Horizontal and 10 rows. Appearance has a 600-point
 scrolling viewport so all controls remain reachable on shorter displays.
+
+For background changes, toggle **Blur background** over a window with detailed
+content in both results layouts. Check that text, icons and selection stay sharp,
+the effect fills the launcher after resizing, and **Window background** plus
+**Tint opacity** tint the blur (100% covers it). Disabling blur restores plain
+transparency. Check light/dark appearance, **Reduce transparency** in macOS
+Accessibility settings, persistence after relaunch and Reset to Defaults (blur
+off). Color updates must apply only to the launcher, including while Settings
+or the font panel is open.
 
 Releases are cut with `scripts/release.sh`, see [RELEASING.md](../RELEASING.md).

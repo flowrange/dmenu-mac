@@ -216,6 +216,55 @@ final class SearchWindowTests: XCTestCase {
         return window
     }
 
+    func testBackgroundBlurLoadsFromSettingsAndUpdatesOnlyTheLauncher() throws {
+        let snapshot = AppearanceDefaultsSnapshot()
+        defer { snapshot.restore() }
+        AppearanceDefaultsSnapshot.clear()
+        let model = AppearanceSettingsModel()
+        model.blurBackground = true
+        model.windowOpacity = 0.35
+        model.windowBackgroundColor = .init(red: 1, green: 0, blue: 0)
+
+        let window = try makeLauncher()
+        defer { window.orderOut(nil) }
+        window.orderFront(nil)
+        let controller = try XCTUnwrap(window.contentViewController as? SearchViewController)
+        let effect = try XCTUnwrap(controller.view.subviews.first as? NSVisualEffectView)
+        let tint = controller.view.subviews[1]
+        XCTAssertFalse(window.isOpaque)
+        XCTAssertEqual(window.backgroundColor, .clear)
+        XCTAssertFalse(effect.isHidden)
+        XCTAssertEqual(effect.blendingMode, .behindWindow)
+        XCTAssertEqual(effect.state, .active)
+        XCTAssertFalse(tint.isHidden)
+        let color = try XCTUnwrap(tint.layer?.backgroundColor.flatMap(NSColor.init(cgColor:)))
+        XCTAssertEqual(color.alphaComponent, 0.35, accuracy: 0.0001)
+        XCTAssertEqual(color.usingColorSpace(.sRGB)?.redComponent, 1)
+
+        let settings = NSWindow(contentRect: .zero, styleMask: .titled, backing: .buffered, defer: false)
+        settings.backgroundColor = .orange
+        settings.orderFront(nil)
+        defer { settings.orderOut(nil) }
+
+        for layout in ResultsLayout.allCases {
+            model.resultsLayout = layout
+            model.usesFullWidth = false
+            model.windowWidth = 300
+            XCTAssertEqual(effect.frame, controller.view.bounds)
+            XCTAssertEqual(tint.frame, controller.view.bounds)
+        }
+
+        for enabled in [false, true, false] {
+            model.blurBackground = enabled
+            XCTAssertEqual(effect.isHidden, !enabled)
+            XCTAssertEqual(tint.isHidden, !enabled)
+            XCTAssertEqual(window.backgroundColor, enabled ? .clear : NSColor.red.withAlphaComponent(0.35))
+            XCTAssertEqual(controller.view.subviews.compactMap { $0 as? NSVisualEffectView }.count, 1)
+            XCTAssertEqual(settings.backgroundColor, .orange)
+            XCTAssertTrue(settings.isOpaque)
+        }
+    }
+
     func testTallVerticalWindowFitsSelectedScreenAndKeepsLargeFontSelectionVisible() throws {
         let snapshot = AppearanceDefaultsSnapshot()
         defer { snapshot.restore() }

@@ -1,37 +1,43 @@
 # dmenu-mac — personal fork
 
-![Centered dmenu-mac launcher with vertical search results](docs/images/vertical-launcher.png)
+![Centered dmenu-mac launcher with vertical results and a blurred background](docs/images/vertical-launcher.png)
 
 A personal fork of [dmenu-mac](https://github.com/oNaiPs/dmenu-mac), the
 keyboard-driven macOS launcher by [oNaiPs](https://github.com/oNaiPs).
 
 ## What changed
 
-Based on upstream **0.9.0**, this fork adds a **Center** window position,
-adjustable width and an optional vertical results list.
+Based on upstream **0.9.0**, this fork adds the following features. Configure
+them in **Settings → Appearance** (**⌘,**). Settings persist between launches;
+**Reset to Defaults** restores the original appearance.
 
-To use a compact, centered launcher with a vertical list:
+### Centered launcher
 
-1. Open the launcher and press **⌘,** to open **Settings → Appearance**.
-2. Set **Position** to **Center** and turn off **Full width**.
-3. Adjust **Width**: initially **900 points**, from 300 to 3,000 in 10-point steps.
-4. Set **Results** to **Vertical** and choose **Visible rows**: initially **10**,
-   adjustable from 3 to 20.
+Set **Position** to **Center** to place the launcher in the middle of the
+selected screen's usable area. **Top** and **Bottom** remain available, with
+**Top** as the default.
 
-Custom width also works with **Top** and **Bottom**. The window is centered
-horizontally within the selected screen's usable area, avoiding a side Dock and
-shrinking to fit smaller screens. The selected result stays visible when the
-window narrows or the layout changes.
+### Adjustable width
 
-In Vertical, the search field sits above the results. **↑/↓** or
-**Tab/Shift+Tab** select results and wrap at either end; **←/→** edit the query.
-The list scrolls to keep the selection visible. Its height stays fixed while
-searching, grows with the font and is limited to the available screen height.
-Choose **Horizontal** to return to the single-row bar, where **←/→** or
-**Tab/Shift+Tab** select results. Position and width controls work in both layouts.
+Turn off **Full width** and adjust **Width** from 300 to 3,000 points, initially
+900. Custom width works at every position, stays centered horizontally and
+shrinks to fit the screen while avoiding a side Dock. Full width remains the default.
 
-Top, Full width and Horizontal remain the defaults. Appearance settings persist;
-**Reset to Defaults** also restores the vertical row count to 10.
+### Vertical results
+
+Choose **Vertical** to stack results below the search field, with 3 to 20 visible
+rows (initially 10). **↑/↓** or **Tab/Shift+Tab** select results; **←/→** edit the
+query. The list keeps the selection visible and its height stays fixed while
+filtering, growing with the font to fit within the screen. **Horizontal** remains the default.
+
+### Background blur
+
+Enable **Blur background** for native macOS blur behind the launcher, with text
+and icons staying sharp in both layouts. **Window background** and **Tint opacity**
+adjust the color overlay; lower opacity reveals more of the blur. Blur is off
+by default, and macOS controls its strength and honors **Reduce transparency**.
+
+## Installation
 
 No fork binaries have been released. Homebrew and Nix install the upstream app;
 build this fork from source to use these controls.

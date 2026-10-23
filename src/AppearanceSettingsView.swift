@@ -61,7 +61,10 @@ struct AppearanceSettingsView: View {
                 .disabled(model.usesFullWidth)
                 .help("Limited to the screen's usable width. Applies to every position.")
 
-                LabeledContent("Opacity") {
+                Toggle("Blur background", isOn: $model.blurBackground)
+                    .help("Blurs the desktop and windows behind the launcher. Opacity controls the background tint.")
+
+                LabeledContent(model.blurBackground ? "Tint opacity" : "Opacity") {
                     HStack {
                         Slider(value: $model.windowOpacity, in: AppearanceSettingsModel.opacityRange)
                         Text(model.opacityText)

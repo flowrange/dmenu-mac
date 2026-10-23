@@ -9,6 +9,7 @@ struct AppearanceDefaultsSnapshot {
         UserDefaults.AppearanceKeys.selectionHighlightColor,
         UserDefaults.AppearanceKeys.windowBackgroundColor,
         UserDefaults.AppearanceKeys.windowOpacity,
+        UserDefaults.AppearanceKeys.blurBackground,
         UserDefaults.AppearanceKeys.fontName,
         UserDefaults.AppearanceKeys.fontSize,
         UserDefaults.AppearanceKeys.windowPosition,

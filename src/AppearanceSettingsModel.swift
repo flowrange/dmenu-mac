@@ -79,6 +79,11 @@ final class AppearanceSettingsModel: NSObject, ObservableObject {
         set { update { manager.windowOpacity = CGFloat(newValue) } }
     }
 
+    var blurBackground: Bool {
+        get { manager.blurBackground }
+        set { update { manager.blurBackground = newValue } }
+    }
+
     var opacityText: String {
         "\(Int((windowOpacity * 100).rounded()))%"
     }

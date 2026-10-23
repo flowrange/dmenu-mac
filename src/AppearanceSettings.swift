@@ -24,6 +24,7 @@ extension UserDefaults {
         static let selectionHighlightColor = "appearance.selectionHighlightColor"
         static let windowBackgroundColor = "appearance.windowBackgroundColor"
         static let windowOpacity = "appearance.windowOpacity"
+        static let blurBackground = "appearance.blurBackground"
         static let fontName = "appearance.fontName"
         static let fontSize = "appearance.fontSize"
         static let windowPosition = "appearance.windowPosition"
@@ -90,6 +91,7 @@ class AppearanceManager {
         static let selectionHighlightColor = NSColor.selectedTextBackgroundColor
         static let windowBackgroundColor = NSColor.windowBackgroundColor
         static let windowOpacity: CGFloat = 0.6
+        static let blurBackground = false
         static let fontName = "system"
         static let fontSize: CGFloat = 13.0
         static let windowPosition = WindowPosition.top
@@ -136,6 +138,11 @@ class AppearanceManager {
             return Defaults.windowOpacity
         }
         set { defaults.set(Double(newValue), forKey: UserDefaults.AppearanceKeys.windowOpacity) }
+    }
+
+    var blurBackground: Bool {
+        get { defaults.object(forKey: UserDefaults.AppearanceKeys.blurBackground) as? Bool ?? Defaults.blurBackground }
+        set { defaults.set(newValue, forKey: UserDefaults.AppearanceKeys.blurBackground) }
     }
 
     // MARK: - Font Properties
@@ -251,6 +258,7 @@ class AppearanceManager {
         selectionHighlightColor = Defaults.selectionHighlightColor
         windowBackgroundColor = Defaults.windowBackgroundColor
         windowOpacity = Defaults.windowOpacity
+        blurBackground = Defaults.blurBackground
         fontName = Defaults.fontName
         fontSize = Defaults.fontSize
         windowPosition = Defaults.windowPosition
